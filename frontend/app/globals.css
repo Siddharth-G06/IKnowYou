@@ -1,0 +1,226 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── DARK THEME (default) ─────────────────────────────── */
+:root,
+html[data-theme="dark"] {
+  /* Surfaces */
+  --bg:           #0f0e0d;
+  --bg-elevated:  #1a1917;
+  --bg-card:      #1f1e1c;
+  --bg-hover:     #252320;
+  --border:       #2e2c29;
+  --border-subtle:#231f1c;
+
+  /* Standard Shadcn / UI variables mapped to custom palette */
+  --background: #0f0e0d;
+  --foreground: #f5f0e8;
+  --card: #1f1e1c;
+  --card-foreground: #f5f0e8;
+  --popover: #1a1917;
+  --popover-foreground: #f5f0e8;
+  --primary: #d48b3a;
+  --primary-foreground: #0f0e0d;
+  --secondary: #252320;
+  --secondary-foreground: #f5f0e8;
+  --muted: #1a1917;
+  --muted-foreground: #a09890;
+  --accent: #252320;
+  --accent-foreground: #f5f0e8;
+  --destructive: #ef4444;
+  --destructive-foreground: #f5f0e8;
+  --border: #2e2c29;
+  --input: #2e2c29;
+  --ring: #d48b3a;
+  --radius: 0.75rem;
+
+  /* Text */
+  --text-primary:   #f5f0e8;
+  --text-secondary: #a09890;
+  --text-muted:     #6b645c;
+
+  /* Amber accent */
+  --amber:      #d48b3a;
+  --amber-light:#e8a455;
+  --amber-dim:  #8a5a24;
+  --amber-glow: rgba(212, 139, 58, 0.12);
+
+  /* Indigo accent (Relationships) */
+  --indigo:       #818cf8;
+  --indigo-light: #a5b4fc;
+  --indigo-glow:  rgba(129, 140, 248, 0.12);
+
+  /* Emerald accent (Memories) */
+  --emerald:       #34d399;
+  --emerald-light: #6ee7b7;
+  --emerald-glow:  rgba(52, 211, 153, 0.12);
+
+  /* Colours for shadow / ring */
+  --shadow-card: 0 12px 32px rgba(0,0,0,0.45);
+  --shadow-input: 0 0 0 3px rgba(212,139,58,0.18);
+}
+
+/* ─── LIGHT THEME ───────────────────────────────────────── */
+html[data-theme="light"] {
+  /* Surfaces — warm ivory / paper whites */
+  --bg:           #f8f5f0;
+  --bg-elevated:  #ffffff;
+  --bg-card:      #ffffff;
+  --bg-hover:     #f0ebe3;
+  --border:       #e2d9cf;
+  --border-subtle:#ede8e1;
+
+  /* Standard Shadcn / UI variables mapped to custom palette */
+  --background: #f8f5f0;
+  --foreground: #1c1917;
+  --card: #ffffff;
+  --card-foreground: #1c1917;
+  --popover: #ffffff;
+  --popover-foreground: #1c1917;
+  --primary: #c07820;
+  --primary-foreground: #f8f5f0;
+  --secondary: #f0ebe3;
+  --secondary-foreground: #1c1917;
+  --muted: #ede8e1;
+  --muted-foreground: #6b5d52;
+  --accent: #f0ebe3;
+  --accent-foreground: #1c1917;
+  --destructive: #ef4444;
+  --destructive-foreground: #f8f5f0;
+  --border: #e2d9cf;
+  --input: #e2d9cf;
+  --ring: #c07820;
+
+  /* Text — deep warm browns */
+  --text-primary:   #1c1917;
+  --text-secondary: #6b5d52;
+  --text-muted:     #a8998b;
+
+  /* Amber accent — slightly richer for light mode contrast */
+  --amber:      #c07820;
+  --amber-light:#d48b3a;
+  --amber-dim:  #e8c08a;
+  --amber-glow: rgba(192, 120, 32, 0.12);
+
+  /* Indigo accent */
+  --indigo:       #4f46e5;
+  --indigo-light: #6366f1;
+  --indigo-glow:  rgba(79, 70, 229, 0.08);
+
+  /* Emerald accent */
+  --emerald:       #059669;
+  --emerald-light: #10b981;
+  --emerald-glow:  rgba(5, 150, 105, 0.08);
+
+  /* Shadows — softer in light mode */
+  --shadow-card: 0 4px 24px rgba(100, 80, 60, 0.10);
+  --shadow-input: 0 0 0 3px rgba(192,120,32,0.14);
+}
+
+/* ─── CSS CUSTOM PROPERTIES (non-theme-specific) ───────── */
+:root {
+  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+  --sidebar-width: 240px;
+}
+
+/* ─── BASE RESET ────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    background-color: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Smooth theme transitions */
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  h1, h2, h3, h4, h5 {
+    font-family: var(--font-heading);
+  }
+
+  /* Inputs inherit font */
+  input, button, select, textarea {
+    font-family: var(--font-body);
+  }
+
+  /* Keep autofilled fields theme-consistent in light/dark mode */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--foreground);
+    box-shadow: 0 0 0 1000px var(--background) inset;
+    transition: background-color 9999s ease-out 0s;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar        { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track  { background: var(--bg); }
+  ::-webkit-scrollbar-thumb  { background: var(--border); border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+}
+
+/* ─── UTILITIES ─────────────────────────────────────────── */
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+
+  .font-heading { font-family: var(--font-heading); }
+  .font-body    { font-family: var(--font-body); }
+
+  /* Theme-aware transitions for cards/surfaces */
+  .theme-transition {
+    transition: background-color 0.25s ease,
+                border-color 0.25s ease,
+                color 0.25s ease,
+                box-shadow 0.25s ease;
+  }
+
+  /* Fade in */
+  .fade-in {
+    animation: fadeIn 0.4s ease-out both;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Slide in */
+  .slide-in {
+    animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-12px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* Theme toggle spin */
+  .spin-on-mount {
+    animation: spinIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @keyframes spinIn {
+    from { opacity: 0; transform: rotate(-90deg) scale(0.7); }
+    to   { opacity: 1; transform: rotate(0deg) scale(1); }
+  }
+}

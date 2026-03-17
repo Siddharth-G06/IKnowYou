@@ -1,0 +1,348 @@
+{
+  "father": {
+    "tamil": "அப்பா",
+    "tamil_transliteration": "Appa",
+    "english": "Father",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "mother": {
+    "tamil": "அம்மா",
+    "tamil_transliteration": "Amma",
+    "english": "Mother",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "brother": {
+    "tamil": "சகோதரர்",
+    "tamil_transliteration": "Sagodharar",
+    "english": "Brother",
+    "gender_required": true,
+    "age_relative_required": true,
+    "note": "Anna for elder, Thambi for younger"
+  },
+  "brother.elder": {
+    "tamil": "அண்ணன்",
+    "tamil_transliteration": "Anna",
+    "english": "Elder Brother",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "brother.younger": {
+    "tamil": "தம்பி",
+    "tamil_transliteration": "Thambi",
+    "english": "Younger Brother",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "sister": {
+    "tamil": "சகோதரி",
+    "tamil_transliteration": "Sagodhari",
+    "english": "Sister",
+    "gender_required": true,
+    "age_relative_required": true,
+    "note": "Akka for elder, Thangai for younger"
+  },
+  "sister.elder": {
+    "tamil": "அக்கா",
+    "tamil_transliteration": "Akka",
+    "english": "Elder Sister",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "sister.younger": {
+    "tamil": "தங்கை",
+    "tamil_transliteration": "Thangai",
+    "english": "Younger Sister",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "son": {
+    "tamil": "மகன்",
+    "tamil_transliteration": "Mahan",
+    "english": "Son",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "daughter": {
+    "tamil": "மகள்",
+    "tamil_transliteration": "Mahal",
+    "english": "Daughter",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "spouse_male": {
+    "tamil": "கணவர்",
+    "tamil_transliteration": "Kanavar",
+    "english": "Husband",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "spouse_female": {
+    "tamil": "மனைவி",
+    "tamil_transliteration": "Manaivi",
+    "english": "Wife",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "father.father": {
+    "tamil": "தாத்தா",
+    "tamil_transliteration": "Thatha",
+    "english": "Paternal Grandfather",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "father.mother": {
+    "tamil": "பாட்டி",
+    "tamil_transliteration": "Paatti",
+    "english": "Paternal Grandmother",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "father.brother.elder": {
+    "tamil": "பெரியப்பா",
+    "tamil_transliteration": "Periyappa",
+    "english": "Father's Elder Brother",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "father.brother.younger": {
+    "tamil": "சித்தப்பா",
+    "tamil_transliteration": "Chithappa",
+    "english": "Father's Younger Brother",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "father.sister": {
+    "tamil": "அத்தை",
+    "tamil_transliteration": "Athai",
+    "english": "Father's Sister",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "father.brother.elder.wife": {
+    "tamil": "பெரியம்மா",
+    "tamil_transliteration": "Periyamma",
+    "english": "Father's Elder Brother's Wife",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "father.brother.younger.wife": {
+    "tamil": "சித்தி",
+    "tamil_transliteration": "Chitti",
+    "english": "Father's Younger Brother's Wife",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "father.sister.husband": {
+    "tamil": "அத்திமேர்",
+    "tamil_transliteration": "Athimber",
+    "english": "Father's Sister's Husband",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "father.brother.son": {
+    "tamil": "பெரியப்பா/சித்தப்பா மகன்",
+    "tamil_transliteration": "Periyappa/Chithappa mahan",
+    "english": "Father's Brother's Son",
+    "gender_required": false,
+    "age_relative_required": true,
+    "note": "Cousin brother (Anna/Thambi)"
+  },
+  "father.brother.daughter": {
+    "tamil": "பெரியப்பா/சித்தப்பா மகள்",
+    "tamil_transliteration": "Periyappa/Chithappa mahal",
+    "english": "Father's Brother's Daughter",
+    "gender_required": false,
+    "age_relative_required": true,
+    "note": "Cousin sister (Akka/Thangai)"
+  },
+  "father.sister.son": {
+    "tamil": "அத்தை மகன்",
+    "tamil_transliteration": "Athai mahan",
+    "english": "Father's Sister's Son",
+    "gender_required": false,
+    "age_relative_required": true,
+    "note": "Potential cross-cousin match (Machan/Anna/Thambi)"
+  },
+  "father.sister.daughter": {
+    "tamil": "அத்தை மகள்",
+    "tamil_transliteration": "Athai mahal",
+    "english": "Father's Sister's Daughter",
+    "gender_required": false,
+    "age_relative_required": true,
+    "note": "Potential cross-cousin match (Akka/Thangai/Madahani)"
+  },
+  "mother.father": {
+    "tamil": "தாத்தா",
+    "tamil_transliteration": "Thatha",
+    "english": "Maternal Grandfather",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "mother.mother": {
+    "tamil": "பாட்டி",
+    "tamil_transliteration": "Paatti",
+    "english": "Maternal Grandmother",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "mother.brother": {
+    "tamil": "மாமா",
+    "tamil_transliteration": "Mama",
+    "english": "Mother's Brother",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "mother.sister": {
+    "tamil": "பெரியம்மா / சின்னம்மா",
+    "tamil_transliteration": "Periyamma / Chinnamma",
+    "english": "Mother's Sister",
+    "gender_required": false,
+    "age_relative_required": true,
+    "note": "Periyamma if older than mother, Chinnamma if younger"
+  },
+  "mother.sister.elder": {
+    "tamil": "பெரியம்மா",
+    "tamil_transliteration": "Periyamma",
+    "english": "Mother's Elder Sister",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "mother.sister.younger": {
+    "tamil": "சின்னம்மா",
+    "tamil_transliteration": "Chinnamma",
+    "english": "Mother's Younger Sister",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "mother.brother.wife": {
+    "tamil": "மாமி",
+    "tamil_transliteration": "Mami",
+    "english": "Mother's Brother's Wife",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "mother.sister.husband": {
+    "tamil": "பெரியப்பா / சித்தப்பா",
+    "tamil_transliteration": "Periyappa / Chithappa",
+    "english": "Mother's Sister's Husband",
+    "gender_required": false,
+    "age_relative_required": true
+  },
+  "mother.brother.son": {
+    "tamil": "மாமா மகன்",
+    "tamil_transliteration": "Mama mahan",
+    "english": "Mother's Brother's Son",
+    "gender_required": false,
+    "age_relative_required": true,
+    "note": "Potential cross-cousin (Machan)"
+  },
+  "mother.brother.daughter": {
+    "tamil": "மாமா மகள்",
+    "tamil_transliteration": "Mama mahal",
+    "english": "Mother's Brother's Daughter",
+    "gender_required": false,
+    "age_relative_required": true
+  },
+  "mother.sister.son": {
+    "tamil": "பெரியம்மா/சின்னம்மா மகன்",
+    "tamil_transliteration": "Periyamma/Chinnamma mahan",
+    "english": "Mother's Sister's Son",
+    "gender_required": false,
+    "age_relative_required": true
+  },
+  "mother.sister.daughter": {
+    "tamil": "பெரியம்மா/சின்னம்மா மகள்",
+    "tamil_transliteration": "Periyamma/Chinnamma mahal",
+    "english": "Mother's Sister's Daughter",
+    "gender_required": false,
+    "age_relative_required": true
+  },
+  "son.son": {
+    "tamil": "பேரன்",
+    "tamil_transliteration": "Peyran",
+    "english": "Grandson (Son's Son)",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "son.daughter": {
+    "tamil": "பேத்தி",
+    "tamil_transliteration": "Peytti",
+    "english": "Granddaughter (Son's Daughter)",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "daughter.son": {
+    "tamil": "பேரன்",
+    "tamil_transliteration": "Peyran",
+    "english": "Grandson (Daughter's Son)",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "daughter.daughter": {
+    "tamil": "பேத்தி",
+    "tamil_transliteration": "Peytti",
+    "english": "Granddaughter (Daughter's Daughter)",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "son.wife": {
+    "tamil": "மருமகள்",
+    "tamil_transliteration": "Marumahal",
+    "english": "Daughter-in-law",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "daughter.husband": {
+    "tamil": "மருமகன்",
+    "tamil_transliteration": "Marumahan",
+    "english": "Son-in-law",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "spouse.father": {
+    "tamil": "மாமனார்",
+    "tamil_transliteration": "Maamanar",
+    "english": "Father-in-law",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "spouse.mother": {
+    "tamil": "மாமியார்",
+    "tamil_transliteration": "Maamiyar",
+    "english": "Mother-in-law",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "spouse.brother": {
+    "tamil": "மைத்துனர்",
+    "tamil_transliteration": "Maithunar",
+    "english": "Brother-in-law",
+    "gender_required": false,
+    "age_relative_required": true,
+    "note": "Machan for younger, Maithunar/Mama for elder"
+  },
+  "spouse.sister": {
+    "tamil": "நாத்தனார்",
+    "tamil_transliteration": "Naathanar",
+    "english": "Sister-in-law",
+    "gender_required": false,
+    "age_relative_required": true,
+    "note": "Machini for younger, Naathanar/Madamani for elder"
+  },
+  "mother.cousin": {
+    "tamil": "மச்சினன்/மாமா",
+    "tamil_transliteration": "Machinan/Mama",
+    "english": "Mother's Cousin",
+    "gender_required": true,
+    "note": "Commonly called Mama if older, Machan if younger"
+  },
+  "father.cousin": {
+    "tamil": "சித்தப்பா/பெரியப்பா",
+    "tamil_transliteration": "Chithappa/Periyappa",
+    "english": "Father's Cousin",
+    "gender_required": true,
+    "note": "Commonly called Periyappa if older, Chithappa if younger"
+  }
+}

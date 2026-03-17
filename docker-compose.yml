@@ -1,0 +1,52 @@
+services:
+  neo4j:
+    image: neo4j:5.15
+    container_name: iknowyou-neo4j
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=neo4j/kinledger123
+    volumes:
+      - ./data/neo4j:/data
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider localhost:7474 || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: iknowyou-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    environment:
+      NEO4J_URI: bolt://neo4j:7687
+    volumes:
+      - ./backend:/app
+    depends_on:
+      neo4j:
+        condition: service_healthy
+    command: uvicorn main:app --reload --host 0.0.0.0 --port 8000
+    healthcheck:
+      test: [ "CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\"" ]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  frontend:
+    build: ./frontend
+    container_name: iknowyou-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      backend:
+        condition: service_healthy
+    command: npm run dev -- --hostname 0.0.0.0

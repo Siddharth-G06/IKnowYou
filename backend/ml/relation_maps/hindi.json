@@ -1,0 +1,267 @@
+{
+  "father": {
+    "hindi": "पिता",
+    "hindi_transliteration": "Pita",
+    "english": "Father",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "mother": {
+    "hindi": "माता",
+    "hindi_transliteration": "Mata",
+    "english": "Mother",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "brother": {
+    "hindi": "भाई",
+    "hindi_transliteration": "Bhai",
+    "english": "Brother",
+    "gender_required": true,
+    "age_relative_required": true
+  },
+  "brother.elder": {
+    "hindi": "बड़े भाई",
+    "hindi_transliteration": "Bade Bhai",
+    "english": "Elder Brother",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "brother.younger": {
+    "hindi": "छोटे भाई",
+    "hindi_transliteration": "Chote Bhai",
+    "english": "Younger Brother",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "sister": {
+    "hindi": "बहन",
+    "hindi_transliteration": "Behen",
+    "english": "Sister",
+    "gender_required": true,
+    "age_relative_required": true
+  },
+  "sister.elder": {
+    "hindi": "बड़ी बहन",
+    "hindi_transliteration": "Badi Behen",
+    "english": "Elder Sister",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "sister.younger": {
+    "hindi": "छोटी बहन",
+    "hindi_transliteration": "Choti Behen",
+    "english": "Younger Sister",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "son": {
+    "hindi": "बेटा",
+    "hindi_transliteration": "Beta",
+    "english": "Son",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "daughter": {
+    "hindi": "बेटी",
+    "hindi_transliteration": "Beti",
+    "english": "Daughter",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "spouse_male": {
+    "hindi": "पति",
+    "hindi_transliteration": "Pati",
+    "english": "Husband",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "spouse_female": {
+    "hindi": "पत्नी",
+    "hindi_transliteration": "Patni",
+    "english": "Wife",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "father.father": {
+    "hindi": "दादा",
+    "hindi_transliteration": "Dada",
+    "english": "Paternal Grandfather",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "father.mother": {
+    "hindi": "दादी",
+    "hindi_transliteration": "Dadi",
+    "english": "Paternal Grandmother",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "father.brother.elder": {
+    "hindi": "ताऊजी",
+    "hindi_transliteration": "Tauji",
+    "english": "Father's Elder Brother",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "father.brother.younger": {
+    "hindi": "चाचा",
+    "hindi_transliteration": "Chacha",
+    "english": "Father's Younger Brother",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "father.sister": {
+    "hindi": "बुआ",
+    "hindi_transliteration": "Bua",
+    "english": "Father's Sister",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "father.brother.elder.wife": {
+    "hindi": "ताई",
+    "hindi_transliteration": "Tai",
+    "english": "Father's Elder Brother's Wife",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "father.brother.younger.wife": {
+    "hindi": "चाची",
+    "hindi_transliteration": "Chachi",
+    "english": "Father's Younger Brother's Wife",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "father.sister.husband": {
+    "hindi": "फूफा",
+    "hindi_transliteration": "Phupha",
+    "english": "Father's Sister's Husband",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "mother.father": {
+    "hindi": "नाना",
+    "hindi_transliteration": "Nana",
+    "english": "Maternal Grandfather",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "mother.mother": {
+    "hindi": "नानी",
+    "hindi_transliteration": "Nani",
+    "english": "Maternal Grandmother",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "mother.brother": {
+    "hindi": "मामा",
+    "hindi_transliteration": "Mama",
+    "english": "Mother's Brother",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "mother.sister": {
+    "hindi": "मौसी",
+    "hindi_transliteration": "Mausi",
+    "english": "Mother's Sister",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "mother.sister.elder": {
+    "hindi": "बड़ी मौसी",
+    "hindi_transliteration": "Badi Mausi",
+    "english": "Mother's Elder Sister",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "mother.sister.younger": {
+    "hindi": "छोटी मौसी",
+    "hindi_transliteration": "Choti Mausi",
+    "english": "Mother's Younger Sister",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "mother.brother.wife": {
+    "hindi": "मामी",
+    "hindi_transliteration": "Mami",
+    "english": "Mother's Brother's Wife",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "mother.sister.husband": {
+    "hindi": "मौसर",
+    "hindi_transliteration": "Mausar",
+    "english": "Mother's Sister's Husband",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "son.son": {
+    "hindi": "पोता",
+    "hindi_transliteration": "Pota",
+    "english": "Grandson (Son's Son)",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "son.daughter": {
+    "hindi": "पोती",
+    "hindi_transliteration": "Poti",
+    "english": "Granddaughter (Son's Daughter)",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "daughter.son": {
+    "hindi": "नाती",
+    "hindi_transliteration": "Nati",
+    "english": "Grandson (Daughter's Son)",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "daughter.daughter": {
+    "hindi": "नातिन",
+    "hindi_transliteration": "Natin",
+    "english": "Granddaughter (Daughter's Daughter)",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "spouse.father": {
+    "hindi": "ससुर",
+    "hindi_transliteration": "Sasur",
+    "english": "Father-in-law",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "spouse.mother": {
+    "hindi": "सास",
+    "hindi_transliteration": "Saas",
+    "english": "Mother-in-law",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "spouse.brother": {
+    "hindi": "देवर / जेठ",
+    "hindi_transliteration": "Devar / Jeth",
+    "english": "Brother-in-law",
+    "gender_required": false,
+    "age_relative_required": true,
+    "note": "Devar if younger than husband, Jeth if older"
+  },
+  "spouse.sister": {
+    "hindi": "ननद",
+    "hindi_transliteration": "Nanad",
+    "english": "Sister-in-law",
+    "gender_required": false,
+    "age_relative_required": false
+  },
+  "mother.cousin": {
+    "hindi": "मामा/मौसी",
+    "hindi_transliteration": "Mama/Mausi",
+    "english": "Mother's Cousin",
+    "note": "Usually referred to as Mama (male) or Mausi (female)"
+  },
+  "father.cousin": {
+    "hindi": "चाचा/बुआ",
+    "hindi_transliteration": "Chacha/Bua",
+    "english": "Father's Cousin",
+    "note": "Usually referred to as Chacha/Tauji (male) or Bua (female)"
+  }
+}

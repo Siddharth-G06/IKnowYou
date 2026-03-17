@@ -1,0 +1,65 @@
+export interface PersonCreate {
+  name: string;
+  nickname?: string;
+  gender: string;
+  categories: string[];
+  notes?: string;
+  photo?: string;
+}
+
+export interface PersonResponse {
+  id: string;
+  name: string;
+  nickname?: string;
+  gender: string;
+  categories: string[];
+  notes?: string;
+  photo?: string;
+}
+
+export interface RelationshipCreate {
+  from_person_id: string;
+  to_person_id: string;
+  relation_type: string;
+}
+
+export interface RelationshipResponse {
+  id: string;
+  from_person_id: string;
+  to_person_id: string;
+  relation_type: string;
+  from_person_name: string;
+  to_person_name: string;
+}
+
+export interface GraphNode {
+  id: string;
+  name: string;
+  gender: string;
+  categories: string[];
+}
+
+export interface GraphLink {
+  source: string;
+  target: string;
+  relation: string;
+}
+
+export interface GraphData {
+  nodes: GraphNode[];
+  links: GraphLink[];
+}
+
+export interface PathResponse {
+  path: string[];
+  relation_name: string;
+}
+
+export interface RelationNameResponse {
+  relation: string;
+}
+
+export interface ApiError {
+  message: string;
+  status: number;
+}
