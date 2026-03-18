@@ -36,10 +36,11 @@ class PersonUpdate(BaseModel):
 
 
 class PersonResponse(BaseModel):
-    id: UUID
+    id: str
     name: str
     nickname: Optional[str] = None
-    gender: Optional[PersonGender] = None
-    tags: List[PersonTag] = Field(default_factory=list)
+    gender: Optional[str] = None
+    tags: List[str] = Field(default_factory=list)
     notes: Optional[str] = None
     created_at: datetime
+

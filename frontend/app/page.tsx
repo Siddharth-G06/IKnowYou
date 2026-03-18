@@ -8,7 +8,7 @@ import * as React from 'react';
 import AddPersonModal from '@/components/AddPersonModal';
 import AddRelationshipModal from '@/components/AddRelationshipModal';
 import { useStats } from '@/hooks/useStats';
-import { mockPeople } from '@/lib/mockData';
+
 
 export default function DashboardPage() {
   const [isAddPersonOpen, setIsAddPersonOpen] = React.useState(false);
@@ -369,13 +369,25 @@ export default function DashboardPage() {
             gap: '16px',
           }}
         >
-          {mockPeople.map((person) => (
-            <PersonCard 
-              key={person.id} 
-              person={person} 
-              onAddRelationship={handleAddRelationship}
-            />
-          ))}
+          {stats?.recent_persons && stats.recent_persons.length > 0 ? (
+            stats.recent_persons.map((p: any) => {
+              const person: Person = {
+                id: p.id,
+                name: p.name,
+                tags: [],
+                notes: `Added ${new Date(p.created_at).toLocaleDateString()}`,
+              };
+              return (
+                <PersonCard 
+                  key={person.id} 
+                  person={person} 
+                  onAddRelationship={handleAddRelationship}
+                />
+              );
+            })
+          ) : (
+             <p style={{ color: 'var(--text-muted)' }}>No recent people added yet.</p>
+          )}
         </div>
       </section>
 

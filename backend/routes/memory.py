@@ -268,6 +268,15 @@ def list_memories():
         driver.close()
 
 
+@router.get("/stats", response_model=Dict[str, Any])
+def memory_stats_inline():
+    """
+    Alias that keeps /stats before /{memory_id} for correct FastAPI routing.
+    Delegates to the real implementation below.
+    """
+    return memory_stats()
+
+
 @router.get("/{memory_id}", response_model=Dict[str, Any])
 def get_memory(memory_id: str):
     """
@@ -383,7 +392,7 @@ def search_memories_endpoint(body: MemorySearchRequest):
         driver.close()
 
 
-@router.get("/stats", response_model=Dict[str, Any])
+@router.get("/stats/_impl", response_model=Dict[str, Any], include_in_schema=False)
 def memory_stats():
     driver = _get_db_driver()
     if not driver:

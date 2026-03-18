@@ -142,6 +142,8 @@ export default function FamilyGraph() {
     const simulation = d3.forceSimulation<Node, Link>(filteredData.nodes)
       .force('link', d3.forceLink<Node, Link>(filteredData.links).id((d) => d.id).distance(150))
       .force('charge', d3.forceManyBody().strength(-400))
+      .force('x', d3.forceX(width / 2).strength(0.05))
+      .force('y', d3.forceY(height / 2).strength(0.05))
       .force('center', d3.forceCenter(width / 2, height / 2))
       .force('collision', d3.forceCollide().radius(NODE_RADIUS * 2));
 

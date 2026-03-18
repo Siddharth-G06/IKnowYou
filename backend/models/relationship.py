@@ -14,7 +14,7 @@ class RelationshipCreate(BaseModel):
 
 
 class RelationshipResponse(BaseModel):
-    id: UUID
+    id: str
     from_person_id: str
     to_person_id: str
     relation_type: str

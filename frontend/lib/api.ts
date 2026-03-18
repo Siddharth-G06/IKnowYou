@@ -171,3 +171,39 @@ export async function getHealth(): Promise<HealthResponse> {
   const response = await fetch(`${BASE_URL}/health`);
   return handleResponse<HealthResponse>(response);
 }
+
+// Memories
+export async function logMemory(
+  raw_text: string,
+  manual_person_ids?: string[]
+): Promise<Record<string, unknown>> {
+  const response = await fetch(`${BASE_URL}/memories/log`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ raw_text, manual_person_ids }),
+  });
+  return handleResponse<Record<string, unknown>>(response);
+}
+
+export async function getMemories(): Promise<Record<string, unknown>[]> {
+  const response = await fetch(`${BASE_URL}/memories`);
+  return handleResponse<Record<string, unknown>[]>(response);
+}
+
+export async function confirmRelationship(
+  confId: string,
+  body: {
+    from_person_id: string;
+    to_person_id: string;
+    relation_type: string;
+    relation_label?: string;
+  }
+): Promise<Record<string, unknown>> {
+  const response = await fetch(`${BASE_URL}/confirmations/${confId}/confirm`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  return handleResponse<Record<string, unknown>>(response);
+}
+
