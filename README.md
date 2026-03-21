@@ -1,103 +1,231 @@
 # IKnowYou 🧠
 
-IKnowYou is a personal memory and relationship management system that helps you keep track of people you meet, their occupations, and how they relate to you. This repository is the IKnowYou monorepo, even if a few older prompts or artifacts still mention KinLedger.
+A personal memory and relationship management system. Keep track of everyone you meet, how they relate to you, and what you know about them — all visualised as an interactive graph.
+
+---
 
 ## 🏗️ Architecture
 
-```mermaid
-graph TD
-    A[Next.js 14 Frontend] -->|API Requests| B[FastAPI Backend]
-    B -->|Graph Queries| C[(Neo4j Database)]
-    B -->|Semantic Search| D[(ChromaDB)]
-    B -->|Memory Extraction| E[Ollama / LLM]
 ```
+┌─────────────────────┐      API       ┌──────────────────────┐
+│  Next.js Frontend   │ ─────────────► │  FastAPI Backend     │
+│  (localhost:3000)   │                │  (localhost:8000)    │
+└─────────────────────┘                └──────────┬───────────┘
+                                                  │
+                          ┌───────────────────────┼──────────────────┐
+                          ▼                       ▼                  ▼
+                   ┌────────────┐       ┌──────────────┐    ┌──────────────┐
+                   │   Neo4j    │       │   ChromaDB   │    │    Ollama    │
+                   │  :7687     │       │  (embedded)  │    │   :11434     │
+                   └────────────┘       └──────────────┘    └──────────────┘
+```
+
+---
 
 ## 📋 Prerequisites
 
-Before you begin, ensure you have the following installed:
-- **Node.js** (v18 or higher)
-- **Python** (v3.9 or higher)
-- **Docker & Docker Compose**
-- **Ollama** (Running locally at http://localhost:11434)
+Install these before anything else:
 
-## 🚀 Local Setup
+| Tool | Version | Download |
+|------|---------|----------|
+| Node.js | v18+ | https://nodejs.org |
+| Python | v3.10+ | https://python.org |
+| Docker Desktop | Latest | https://docker.com/products/docker-desktop |
+| Ollama | Latest | https://ollama.com |
 
-### 1. Clone the Repository
-```bash
-git clone <repository-url>
-cd IKnowYou
+---
+
+## 🚀 Running Locally (Step-by-Step)
+
+> **Important:** These must be started **in order**. The backend depends on Neo4j, and the frontend depends on the backend.
+
+### Step 1 — Start Neo4j (via Docker)
+
+Open a terminal in the **project root** (`IKnowYou/`) and run:
+
+```powershell
+docker compose up -d neo4j
 ```
 
-### 2. Infrastructure (Neo4j & Ollama)
-Start the Neo4j database:
-```bash
-docker-compose up -d
-```
-*Accessible at http://localhost:7474 (default password: `kinledger123`)*
+Wait ~15 seconds for Neo4j to fully initialise, then verify it is healthy:
 
-Ensure Ollama is running and has the required models:
-```bash
+```powershell
+docker ps
+```
+
+You should see `iknowyou-neo4j` with status `Up`. The Neo4j Browser is accessible at **http://localhost:7474**.
+
+> **Credentials:** username `neo4j` / password `IKnowYou123`
+
+---
+
+### Step 2 — Start Ollama & Pull Models
+
+Make sure Ollama is running in the background (it auto-starts after install on Windows/Mac). Then pull the required AI models once:
+
+```powershell
 ollama pull mistral
 ollama pull nomic-embed-text
 ```
 
-### 3. Backend Setup
-```bash
+Verify Ollama is reachable:
+
+```powershell
+# Should print {"models":[...]}
+Invoke-RestMethod http://localhost:11434/api/tags
+```
+
+---
+
+### Step 3 — Start the Backend
+
+Open a **new terminal** and run:
+
+```powershell
+# Navigate into the backend folder
 cd backend
+
+# Create and activate a virtual environment (first time only)
 python -m venv venv
-
-# Windows
 .\venv\Scripts\activate
-# Mac/Linux
-source venv/bin/activate
 
+# Install dependencies (first time only)
 pip install -r requirements.txt
+
+# Copy environment file (first time only)
 copy .env.example .env
+```
+
+Your `backend/.env` should look like this (adjust if needed):
+
+```env
+NEO4J_URI=bolt://localhost:7687
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=IKnowYou123
+
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=mistral
+EMBEDDING_MODEL=nomic-embed-text
+CHROMA_PERSIST_DIR=../data/chroma
+```
+
+Then start the server:
+
+```powershell
+# Make sure your venv is active — you should see (venv) in the prompt
 python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### 4. Frontend Setup
-```bash
-cd ../frontend
+✅ Backend is ready when you see:
+```
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000
+```
+
+Verify at **http://localhost:8000/health** — you should see `"neo4j": true`.
+
+---
+
+### Step 4 — Start the Frontend
+
+Open a **new terminal** (keep the backend terminal running) and run:
+
+```powershell
+# Navigate into the frontend folder  
+cd frontend
+
+# Install dependencies (first time only)
 npm install
-npm run lint
-npm run dev           # Starts on http://localhost:3000
+
+# Copy environment file (first time only)
+copy .env.local.example .env.local
 ```
 
-Before starting the frontend locally, create its env file:
-```bash
-copy .env.example .env.local
+Your `frontend/.env.local` should contain:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 
-## Docker Quick Start
+Then start the dev server:
 
-From the repo root:
-```bash
-make start
+```powershell
+npm run dev
+```
+
+✅ Frontend is ready when you see:
+```
+▲ Next.js
+- Local: http://localhost:3000
+```
+
+Open **http://localhost:3000** in your browser. 🎉
+
+---
+
+## ⚠️ Common Problems & Fixes
+
+### Backend crashes with `ServiceUnavailable: Couldn't connect to localhost:7687`
+Neo4j is not running. Fix:
+```powershell
+# From project root
+docker compose up -d neo4j
+# Wait 15 seconds, then start the backend again
+```
+
+### Backend shows `Authentication failure`
+Password mismatch. Make sure `backend/.env` has `NEO4J_PASSWORD=IKnowYou123` and that `docker-compose.yml` has `NEO4J_AUTH=neo4j/IKnowYou123`.
+
+### Frontend shows "Could not load people"
+The backend is not running or crashed. Check the backend terminal for errors and restart it.
+
+### `neo4j is already running (pid:...)` in Docker logs
+The container exited uncleanly. Fix:
+```powershell
+docker rm iknowyou-neo4j -f
+docker compose up -d neo4j
+```
+
+---
+
+## 🐳 Full Docker Stack (Alternative)
+
+To run everything in Docker instead of locally:
+
+```powershell
+# From project root
+docker compose up -d
 ```
 
 Services:
-- Frontend: http://localhost:3000
-- Backend: http://localhost:8000
-- Neo4j Browser: http://localhost:7474
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:3000 |
+| Backend API | http://localhost:8000 |
+| Neo4j Browser | http://localhost:7474 |
 
-## ✨ Key Features
+---
 
-### 🇮🇳 Indian Relationship Name Engine
-A sophisticated system to resolve complex family paths into localized terms.
-- **Tamil Support**: Mapping paths to terms like *Periyappa*, *Athai*, *Machan*.
-- **Hindi Support**: Mapping paths to terms like *Tauji*, *Bua*, *Devar*.
-- **Transliteration**: Provides both native script and phonetic English.
+## ✨ Features
 
-### 🔍 Conflict & Correction System
-- **Real-time Detection**: Warns you if a new memory contradicts known relationships.
-- **Correction Workflow**: Preview changes, see affected graph paths, and apply updates with a single click.
+- **People Graph** — Add people and map their relationships visually via an interactive D3 force graph
+- **Relationship Engine** — Define family, friend, and professional relationships with full Indian relation name support (Tamil & Hindi)
+- **Memory Logger** — Log conversations/events in plain English; AI extracts people and relationships automatically
+- **Semantic Search** — Find people and memories using natural language
+- **Recent People** — Dashboard shows who you most recently added to your network
 
 ## 🛠️ Tech Stack
-- **Frontend**: Next.js 14, Tailwind CSS, Lucide Icons, Shadcn/UI
-- **Backend**: FastAPI, Pydantic, LangChain
-- **Database**: Neo4j (Graph), ChromaDB (Vector Search), SQLite (Status tracking)
-- **AI**: Ollama (Mistral & Nomic Embeddings)
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Next.js 16, Tailwind CSS v4, Radix UI, D3.js |
+| Backend | FastAPI, Pydantic v2, LangChain |
+| Graph DB | Neo4j 5.x |
+| Vector DB | ChromaDB |
+| AI | Ollama (Mistral + Nomic Embeddings) |
+| Status Store | SQLite |
+
+---
 
 ## 📄 License
 MIT

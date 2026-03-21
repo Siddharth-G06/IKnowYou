@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException
@@ -12,14 +12,20 @@ from models.relationship import RelationshipCreate, RelationshipResponse
 router = APIRouter(prefix="/relationships", tags=["relationships"])
 
 
-def _serialize_relationship(record: Dict[str, Any]) -> Dict[str, Any]:
-    relation = record.get("r") if "r" in record else record
+def _serialize_relationship(record: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    if not record:
+        return {"id": "", "from_person_id": "", "to_person_id": "", "relation_type": ""}
+    
+    # Check if a generated fallback ID is needed
+    import uuid
+    r_id = record.get("id") or str(uuid.uuid4())
+    
     return {
-        "id": relation["id"],
-        "from_person_id": record.get("from_person_id") or relation.get("from_person_id"),
-        "to_person_id": record.get("to_person_id") or relation.get("to_person_id"),
-        "relation_type": relation.get("relation_type"),
-        "relation_label": relation.get("relation_label"),
+        "id": str(r_id),
+        "from_person_id": str(record.get("from_person_id") or ""),
+        "to_person_id": str(record.get("to_person_id") or ""),
+        "relation_type": str(record.get("relation_type") or ""),
+        "relation_label": record.get("relation_label"),
         "from_person_name": record.get("from_person_name"),
         "to_person_name": record.get("to_person_name"),
     }
@@ -27,17 +33,19 @@ def _serialize_relationship(record: Dict[str, Any]) -> Dict[str, Any]:
 
 @router.post("", response_model=RelationshipResponse)
 def create_relationship(relationship: RelationshipCreate) -> Dict[str, Any]:
+    # Use MERGE to ensure only one RELATED_TO exists between these two nodes
     rows = run_query(
         """
         MATCH (from:Person {id: $from_person_id}), (to:Person {id: $to_person_id})
-        CREATE (from)-[r:RELATED_TO {
-            id: $id,
-            relation_type: $relation_type,
-            relation_label: $relation_label,
-            from_person_id: $from_person_id,
-            to_person_id: $to_person_id
-        }]->(to)
-        RETURN r,
+        MERGE (from)-[r:RELATED_TO]->(to)
+        SET r.id = COALESCE(r.id, $id),
+            r.relation_type = $relation_type,
+            r.relation_label = $relation_label,
+            r.from_person_id = $from_person_id,
+            r.to_person_id = $to_person_id
+        RETURN r.id AS id,
+               r.relation_type AS relation_type,
+               r.relation_label AS relation_label,
                from.name AS from_person_name,
                to.name AS to_person_name,
                from.id AS from_person_id,
@@ -61,7 +69,9 @@ def list_relationships() -> List[Dict[str, Any]]:
     rows = run_query(
         """
         MATCH (from:Person)-[r:RELATED_TO]->(to:Person)
-        RETURN r,
+        RETURN r.id AS id,
+               r.relation_type AS relation_type,
+               r.relation_label AS relation_label,
                from.name AS from_person_name,
                to.name AS to_person_name,
                from.id AS from_person_id,

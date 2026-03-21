@@ -11,7 +11,7 @@ import {
   HealthResponse,
 } from '@/types/api';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 function mapPerson(person: Record<string, unknown>): PersonResponse {
   const tags = ((person.tags as string[] | undefined) ?? (person.categories as string[] | undefined) ?? []);
