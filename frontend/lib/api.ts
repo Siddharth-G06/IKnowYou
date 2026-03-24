@@ -33,10 +33,23 @@ function normalizeTags(tags?: string[]): string[] {
 }
 
 async function handleResponse<T>(response: Response): Promise<T> {
-  const data = await response.json();
+  const text = await response.text();
+
+  let data: unknown;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    // Server returned non-JSON (e.g. plain-text "Internal Server Error")
+    if (!response.ok) {
+      throw { message: text || `HTTP ${response.status}`, status: response.status } as ApiError;
+    }
+    throw { message: 'Server returned an unexpected non-JSON response', status: response.status } as ApiError;
+  }
+
   if (!response.ok) {
+    const payload = data as Record<string, unknown>;
     const error: ApiError = {
-      message: data.detail || data.message || 'An unexpected error occurred',
+      message: (payload?.detail as string) || (payload?.message as string) || `HTTP ${response.status}`,
       status: response.status,
     };
     throw error;

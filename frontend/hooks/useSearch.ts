@@ -33,7 +33,7 @@ interface UseSearchState {
   search: (query: string) => void;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 async function fetchJSON<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, {
@@ -84,36 +84,52 @@ export function useSearch(debounceMs = 500): UseSearchState {
       const enriched: EnrichedSearchResult[] = [];
 
       for (const r of backendResults) {
-        const topPerson = r.persons[0];
-        if (!topPerson) {
-          continue;
+        const topPerson = r.persons?.[0];
+
+        let primary = 'Memory';
+        let tamil = '';
+        let hindi = '';
+
+        if (topPerson && topPerson.id) {
+          try {
+            // Fetch relation name (graph API already returns language names)
+            const relationResp = await fetchJSON<{
+              path: string[];
+              relation: string;
+              english: string;
+              tamil?: string | null;
+              hindi?: string | null;
+            }>(
+              `${API_BASE}/graph/relation-name?from=self&to=${encodeURIComponent(
+                topPerson.id
+              )}`
+            );
+
+            primary =
+              relationResp.english ||
+              relationResp.relation ||
+              'Your connection';
+
+            tamil = relationResp.tamil || '';
+            hindi = relationResp.hindi || '';
+          } catch (err) {
+            console.warn('Could not fetch relation name:', err);
+            primary = 'Unknown connection';
+          }
         }
 
-        // Fetch relation name (graph API already returns language names)
-        const relationResp = await fetchJSON<{
-          path: string[];
-          relation: string;
-          english: string;
-          tamil?: string | null;
-          hindi?: string | null;
-        }>(
-          `${API_BASE}/graph/relation-name?from=self&to=${encodeURIComponent(
-            topPerson.id
-          )}`
-        );
-
-        const primary =
-          relationResp.english ||
-          relationResp.relation ||
-          'Your connection';
-
-        const tamil = relationResp.tamil || '';
-        const hindi = relationResp.hindi || '';
-
-        const person: PersonResponse = {
+        const person: PersonResponse = (topPerson && topPerson.id) ? {
           id: topPerson.id,
           name: topPerson.name,
           nickname: topPerson.nickname,
+          gender: 'unknown',
+          tags: [],
+          categories: [],
+          notes: undefined,
+          photo: undefined,
+        } : {
+          id: `unknown-${r.memory_id}`,
+          name: 'No person mentioned',
           gender: 'unknown',
           tags: [],
           categories: [],
