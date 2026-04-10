@@ -11,7 +11,7 @@ import {
   HealthResponse,
 } from '@/types/api';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 function mapPerson(person: Record<string, unknown>): PersonResponse {
   const tags = ((person.tags as string[] | undefined) ?? (person.categories as string[] | undefined) ?? []);
@@ -33,10 +33,23 @@ function normalizeTags(tags?: string[]): string[] {
 }
 
 async function handleResponse<T>(response: Response): Promise<T> {
-  const data = await response.json();
+  const text = await response.text();
+
+  let data: unknown;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    // Server returned non-JSON (e.g. plain-text "Internal Server Error")
+    if (!response.ok) {
+      throw { message: text || `HTTP ${response.status}`, status: response.status } as ApiError;
+    }
+    throw { message: 'Server returned an unexpected non-JSON response', status: response.status } as ApiError;
+  }
+
   if (!response.ok) {
+    const payload = data as Record<string, unknown>;
     const error: ApiError = {
-      message: data.detail || data.message || 'An unexpected error occurred',
+      message: (payload?.detail as string) || (payload?.message as string) || `HTTP ${response.status}`,
       status: response.status,
     };
     throw error;
@@ -171,3 +184,39 @@ export async function getHealth(): Promise<HealthResponse> {
   const response = await fetch(`${BASE_URL}/health`);
   return handleResponse<HealthResponse>(response);
 }
+
+// Memories
+export async function logMemory(
+  raw_text: string,
+  manual_person_ids?: string[]
+): Promise<Record<string, unknown>> {
+  const response = await fetch(`${BASE_URL}/memories/log`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ raw_text, manual_person_ids }),
+  });
+  return handleResponse<Record<string, unknown>>(response);
+}
+
+export async function getMemories(): Promise<Record<string, unknown>[]> {
+  const response = await fetch(`${BASE_URL}/memories`);
+  return handleResponse<Record<string, unknown>[]>(response);
+}
+
+export async function confirmRelationship(
+  confId: string,
+  body: {
+    from_person_id: string;
+    to_person_id: string;
+    relation_type: string;
+    relation_label?: string;
+  }
+): Promise<Record<string, unknown>> {
+  const response = await fetch(`${BASE_URL}/confirmations/${confId}/confirm`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  return handleResponse<Record<string, unknown>>(response);
+}
+

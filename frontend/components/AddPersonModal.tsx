@@ -45,14 +45,14 @@ interface AddPersonModalProps {
 function getErrorMessage(err: unknown): string {
   if (err instanceof Error) {
     if (err.message === 'Failed to fetch') {
-      return 'Cannot connect to backend. Ensure backend is running on http://localhost:8000.';
+      return 'Connectivity issue: Could not reach the API server. Please ensure the backend is running.';
     }
     return err.message;
   }
   if (typeof err === 'object' && err !== null && 'message' in err) {
     const msg = String((err as { message: unknown }).message ?? '');
     if (msg === 'Failed to fetch') {
-      return 'Cannot connect to backend. Ensure backend is running on http://localhost:8000.';
+      return 'Connectivity issue: Could not reach the API server. Please ensure the backend is running.';
     }
     return msg || 'An error occurred';
   }

@@ -14,7 +14,7 @@ def get_driver() -> Driver:
     if _driver is None:
         uri = os.getenv("NEO4J_URI", "bolt://localhost:7687")
         user = os.getenv("NEO4J_USER", "neo4j")
-        password = os.getenv("NEO4J_PASSWORD", "kinledger123")
+        password = os.getenv("NEO4J_PASSWORD", "IKnowYou123")
         _driver = GraphDatabase.driver(uri, auth=(user, password))
     return _driver
 
@@ -41,14 +41,18 @@ def run_query(query: str, params: Optional[Dict[str, Any]] = None) -> List[Dict[
 
 
 def init_constraints() -> None:
-    driver = get_driver()
-    with driver.session() as session:
-        session.run(
-            "CREATE CONSTRAINT person_id_unique IF NOT EXISTS FOR (p:Person) REQUIRE p.id IS UNIQUE"
-        )
-        session.run(
-            "CREATE CONSTRAINT memory_id_unique IF NOT EXISTS FOR (m:Memory) REQUIRE m.id IS UNIQUE"
-        )
+    import warnings
+    try:
+        driver = get_driver()
+        with driver.session() as session:
+            session.run(
+                "CREATE CONSTRAINT person_id_unique IF NOT EXISTS FOR (p:Person) REQUIRE p.id IS UNIQUE"
+            )
+            session.run(
+                "CREATE CONSTRAINT memory_id_unique IF NOT EXISTS FOR (m:Memory) REQUIRE m.id IS UNIQUE"
+            )
+    except Exception as e:
+        warnings.warn(f"[neo4j_client] Could not initialise constraints — is Neo4j running? Error: {e}")
 
 
 def create_memory_node(

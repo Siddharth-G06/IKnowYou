@@ -47,13 +47,47 @@ def _get_collection() -> Collection:
         return _collection
 
     client = _get_client()
-    embedder = _get_embedder()
-
+    # NOTE: Do NOT pass embedding_function here — we generate embeddings
+    # explicitly via _get_embedder() and pass them in every upsert/query call.
+    # Passing it here causes a ValueError when the persisted collection was
+    # created with a different (or default) embedding function name.
     _collection = client.get_or_create_collection(
         name="kinledger_memories",
-        embedding_function=embedder,
     )
     return _collection
+
+
+def _reset_collection() -> Collection:
+    """Delete and recreate the collection to recover from a corrupt HNSW index."""
+    global _collection
+    client = _get_client()
+    try:
+        client.delete_collection("kinledger_memories")
+        print("Warning: deleted corrupt ChromaDB collection, starting fresh.")
+    except Exception:
+        pass
+    _collection = client.get_or_create_collection(
+        name="kinledger_memories",
+    )
+    return _collection
+
+
+def _sanitize_metadata(metadata: dict) -> dict:
+    """
+    ChromaDB only accepts scalar values (str, int, float, bool) in metadata.
+    Convert lists and None values to safe scalar types.
+    """
+    clean: dict = {}
+    for k, v in metadata.items():
+        if v is None:
+            clean[k] = ""
+        elif isinstance(v, list):
+            clean[k] = ",".join(str(x) for x in v)
+        elif isinstance(v, (str, int, float, bool)):
+            clean[k] = v
+        else:
+            clean[k] = str(v)
+    return clean
 
 
 def store_memory(memory_id: str, raw_text: str, metadata: dict) -> bool:
@@ -65,50 +99,80 @@ def store_memory(memory_id: str, raw_text: str, metadata: dict) -> bool:
         collection = _get_collection()
         embedder = _get_embedder()
 
-        # Explicitly generate embeddings (even though collection has embedding_function)
+        # Explicitly generate embeddings
         embedding = embedder([raw_text])[0]
 
         collection.upsert(
             ids=[memory_id],
             documents=[raw_text],
-            metadatas=[metadata],
+            metadatas=[_sanitize_metadata(metadata)],
             embeddings=[embedding],
         )
         return True
     except Exception:
+        import traceback
+        traceback.print_exc()
         return False
 
 
 def search_memories(query: str, n_results: int = 5) -> List[SearchResult]:
-    collection = _get_collection()
-    embedder = _get_embedder()
+    """
+    Searches ChromaDB for memories semantically similar to `query`.
+    Handles corrupt HNSW index by resetting the collection and returning empty results.
+    """
+    for attempt in range(2):
+        try:
+            collection = _get_collection()
+            embedder = _get_embedder()
 
-    query_embedding = embedder([query])[0]
+            # Guard: querying an empty collection crashes ChromaDB's HNSW reader
+            count = 0
+            try:
+                count = collection.count()
+            except Exception:
+                pass
+            if count == 0:
+                return []
 
-    results = collection.query(
-        query_embeddings=[query_embedding],
-        n_results=n_results,
-        include=["documents", "metadatas", "distances"],
-    )
+            query_embedding = embedder([query])[0]
 
-    ids = (results.get("ids") or [[]])[0]
-    docs = (results.get("documents") or [[]])[0]
-    metas = (results.get("metadatas") or [[]])[0]
-    dists = (results.get("distances") or [[]])[0]
-
-    out: List[SearchResult] = []
-    for i in range(min(len(ids), len(docs), len(metas), len(dists))):
-        dist = float(dists[i])
-        similarity = 1.0 / (1.0 + dist)  # monotonic transform; higher is better
-        out.append(
-            SearchResult(
-                memory_id=str(ids[i]),
-                raw_text=str(docs[i]),
-                metadata=metas[i] if isinstance(metas[i], dict) else {},
-                similarity_score=float(similarity),
+            results = collection.query(
+                query_embeddings=[query_embedding],
+                n_results=min(n_results, count),
+                include=["documents", "metadatas", "distances"],
             )
-        )
-    return out
+
+            ids = (results.get("ids") or [[]])[0]
+            docs = (results.get("documents") or [[]])[0]
+            metas = (results.get("metadatas") or [[]])[0]
+            dists = (results.get("distances") or [[]])[0]
+
+            out: List[SearchResult] = []
+            for i in range(min(len(ids), len(docs), len(metas), len(dists))):
+                dist = float(dists[i])
+                similarity = 1.0 / (1.0 + dist)  # monotonic transform; higher is better
+                out.append(
+                    SearchResult(
+                        memory_id=str(ids[i]),
+                        raw_text=str(docs[i]),
+                        metadata=metas[i] if isinstance(metas[i], dict) else {},
+                        similarity_score=float(similarity),
+                    )
+                )
+            return out
+
+        except Exception as e:
+            err_str = str(e)
+            is_corrupt = "Nothing found on disk" in err_str or "hnsw" in err_str.lower()
+            if attempt == 0 and is_corrupt:
+                print(f"Warning: ChromaDB HNSW index corrupt, resetting. Detail: {err_str}")
+                _reset_collection()
+                continue  # retry once with fresh collection
+            import traceback
+            traceback.print_exc()
+            return []
+
+    return []
 
 
 def delete_memory(memory_id: str) -> bool:
@@ -121,15 +185,13 @@ def delete_memory(memory_id: str) -> bool:
 
 
 def get_memory_count() -> int:
-    collection = _get_collection()
     try:
+        collection = _get_collection()
         return int(collection.count())
     except Exception:
-        # older chromadb versions may not support count on collection
         try:
-            items = collection.get(include=[])
+            items = _get_collection().get(include=[])
             ids = items.get("ids") or []
             return int(len(ids))
         except Exception:
             return 0
-

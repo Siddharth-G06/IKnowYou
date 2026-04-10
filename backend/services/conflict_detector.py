@@ -53,12 +53,10 @@ class ConflictDetector:
             
         try:
             with driver.session() as session:
-                # Find path from any node that marks the 'User' (root)
-                # In this app, we often use name='You' or a specific root ID
                 query = """
                 MATCH (me:Person) WHERE me.name IN ['You', 'you', 'Me', 'me', 'root']
                 MATCH p=shortestPath((me)-[*]-(target:Person {id: $person_id}))
-                RETURN [r IN relationships(p) | type(r)] AS path, 
+                RETURN [r IN relationships(p) | type(r)] AS path,
                        [r IN relationships(p) | r.age_relative] AS ages
                 """
                 result = session.run(query, person_id=person_id)
@@ -75,8 +73,8 @@ class ConflictDetector:
             return None
         except Exception:
             return None
-        finally:
-            driver.close()
+        # Note: do NOT close the driver here — it is the shared singleton from
+        # db.neo4j_client and must remain open for the lifetime of the process.
 
     def find_contradicting_memories(self, person_id: str, person_name: str, proposed_relation: str) -> List[Dict[str, Any]]:
         """

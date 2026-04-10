@@ -4,10 +4,10 @@ import re
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, HTTPException
-from neo4j import GraphDatabase
 from pydantic import BaseModel
 
 from db import sqlite_client
+from db.neo4j_client import get_driver
 
 
 router = APIRouter(prefix="/confirmations", tags=["confirmations"])
@@ -20,19 +20,6 @@ class ConfirmRequest(BaseModel):
     relation_label: Optional[str] = None
 
 
-def _get_db_driver():
-    from dotenv import load_dotenv
-    import os
-
-    load_dotenv()
-    uri = os.getenv("NEO4J_URI", "bolt://localhost:7687")
-    user = os.getenv("NEO4J_USER", "neo4j")
-    password = os.getenv("NEO4J_PASSWORD", "IKnowYou123")
-    try:
-        return GraphDatabase.driver(uri, auth=(user, password))
-    except Exception as e:
-        print(f"Error connecting to Neo4j: {e}")
-        return None
 
 
 def _sanitize_relation_type(rel_type: str) -> str:
@@ -65,46 +52,41 @@ def confirm_relationship(conf_id: str, body: ConfirmRequest):
     from_id = body.from_person_id
     to_id = body.to_person_id
 
-    driver = _get_db_driver()
-    if not driver:
-        raise HTTPException(status_code=500, detail="Database connection failed")
+    driver = get_driver()
 
-    try:
-        with driver.session() as session:
-            query = f"""
-            MATCH (a:Person {{id: $from_id}}), (b:Person {{id: $to_id}})
-            CREATE (a)-[r:{rel_type} {{label: $label}}]->(b)
-            RETURN type(r) AS type, a.id AS from_id, b.id AS to_id, r.label AS label
-            """
-            rec = session.run(
-                query,
-                from_id=from_id,
-                to_id=to_id,
-                label=body.relation_label or row.get("relation_raw"),
-            ).single()
+    with driver.session() as session:
+        query = f"""
+        MATCH (a:Person {{id: $from_id}}), (b:Person {{id: $to_id}})
+        CREATE (a)-[r:{rel_type} {{label: $label}}]->(b)
+        RETURN type(r) AS type, a.id AS from_id, b.id AS to_id, r.label AS label
+        """
+        rec = session.run(
+            query,
+            from_id=from_id,
+            to_id=to_id,
+            label=body.relation_label or row.get("relation_raw"),
+        ).single()
 
-            if not rec:
-                raise HTTPException(status_code=500, detail="Failed to create relationship")
+        if not rec:
+            raise HTTPException(status_code=500, detail="Failed to create relationship")
 
-        # Update confirmation status in SQLite
-        sqlite_client.update_confirmation_status(
-            conf_id,
-            status="confirmed",
-            from_person_id=from_id,
-            to_person_id=to_id,
-        )
+    # Update confirmation status in SQLite
+    sqlite_client.update_confirmation_status(
+        conf_id,
+        status="confirmed",
+        from_person_id=from_id,
+        to_person_id=to_id,
+    )
 
-        return {
-            "confirmation_id": conf_id,
-            "relationship": {
-                "type": rec["type"],
-                "from_id": rec["from_id"],
-                "to_id": rec["to_id"],
-                "label": rec["label"],
-            },
-        }
-    finally:
-        driver.close()
+    return {
+        "confirmation_id": conf_id,
+        "relationship": {
+            "type": rec["type"],
+            "from_id": rec["from_id"],
+            "to_id": rec["to_id"],
+            "label": rec["label"],
+        },
+    }
 
 
 @router.post("/{conf_id}/reject", response_model=Dict[str, Any])
