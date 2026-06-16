@@ -1,33 +1,26 @@
 # IKnowYou
 
 > Privacy-first, fully local personal relationship memory system.
+> Built for people who want to remember the humans in their life — without giving that data to anyone.
 
-## Status
-🚧 Phase 0 — Repository bootstrap complete
+## What it does
 
-## What this does
-Helps you remember people, relationships, and conversations.
-Fully local. No cloud. No API keys. Works on 2GB RAM.
+- Log memories as text or voice
+- Automatically extracts people and relationships using local LLM (Ollama) with spaCy/rule-based fallback
+- Stores a knowledge graph of your relationships (Neo4j)
+- Semantic search over your memories (SQLite-VSS)
+- Encrypts all content at rest with AES-256-GCM
+- Full Indian relationship cultural context mapping
 
 ## Stack
 - FastAPI + Neo4j + SQLite-VSS
-- Ollama (local LLM) with spaCy fallback
-- Whisper STT (local)
-- AES-256-GCM encryption at rest
 - Next.js 14 frontend
 
 ## Setup
+
 ```bash
 ./scripts/setup.sh
+docker compose up -d neo4j
+cd backend && uv run uvicorn app.main:app --reload
+cd frontend && pnpm run dev
 ```
-
-## Phases
-- [x] Phase 0 — Bootstrap
-- [ ] Phase 1 — Core data layer
-- [ ] Phase 2 — Extraction pipeline
-- [ ] Phase 3 — API layer
-- [ ] Phase 4 — Cultural resolver
-- [ ] Phase 5 — STT integration
-- [ ] Phase 6 — Frontend
-- [ ] Phase 7 — Encryption
-- [ ] Phase 8 — Polish & tests
