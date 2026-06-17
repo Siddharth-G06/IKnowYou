@@ -5,6 +5,7 @@ export type TagCategory =
   | 'acquaintance'
   | 'mentor'
   | 'neighbor'
+  | 'professional'
   | 'other';
 
 export interface Tag {
@@ -12,11 +13,21 @@ export interface Tag {
   category: TagCategory;
 }
 
+/**
+ * Person as returned by the backend.
+ * `tags` is a plain string array (e.g. ["Family", "Friend"]).
+ * `categories` is an alias for the same data (also populated by the backend).
+ */
 export interface Person {
   id: string;
   name: string;
+  nickname?: string;
+  gender?: string;
+  /** Backend returns these as plain strings */
+  tags: string[];
+  /** Alias – same data as tags, populated by graph route */
+  categories?: string[];
   relation?: string;
-  tags: Tag[];
   location?: string;
   metAt?: string;
   lastMet?: string;

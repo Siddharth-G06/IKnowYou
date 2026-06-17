@@ -158,6 +158,27 @@ def log_memory(body: MemoryCreate, request: Request):
                 )
                 conflicts.extend(person_conflicts)
 
+                # 1. Ensure the 'You' node exists
+                you_res = session.run("MERGE (y:Person {name: 'You'}) ON CREATE SET y.id = randomUUID(), y.categories = ['User'], y.created_at = datetime().toString() RETURN y.id AS id").single()
+                you_id = you_res["id"] if you_res else str(uuid.uuid4())
+
+                # 2. Immediately create the relationship edge in Neo4j to keep graph connected
+                session.run(
+                    """
+                    MATCH (from:Person {id: $from_id}), (to:Person {id: $to_id})
+                    MERGE (from)-[r:RELATED_TO]->(to)
+                    SET r.id = COALESCE(r.id, randomUUID()),
+                        r.relation_type = $rel_type,
+                        r.relation_label = $rel_label,
+                        r.from_person_id = $from_id,
+                        r.to_person_id = $to_id
+                    """,
+                    from_id=you_id,
+                    to_id=person_id,
+                    rel_type=person.relation_raw.lower().strip(),
+                    rel_label=person.relation_raw
+                )
+
                 confirmation_id = str(uuid.uuid4())
                 from_person_name = "You"
                 to_person_name = name or nickname or "Unknown"
@@ -167,7 +188,7 @@ def log_memory(body: MemoryCreate, request: Request):
                     from_person_name=from_person_name,
                     to_person_name=to_person_name,
                     relation_raw=person.relation_raw,
-                    from_person_id=None,
+                    from_person_id=you_id,
                     to_person_id=person_id,
                 )
                 pending_confirmations.append(

@@ -55,16 +55,30 @@ def confirm_relationship(conf_id: str, body: ConfirmRequest):
     driver = get_driver()
 
     with driver.session() as session:
-        query = f"""
-        MATCH (a:Person {{id: $from_id}}), (b:Person {{id: $to_id}})
-        CREATE (a)-[r:{rel_type} {{label: $label}}]->(b)
-        RETURN type(r) AS type, a.id AS from_id, b.id AS to_id, r.label AS label
+        query = """
+        MATCH (a:Person {id: $from_id}), (b:Person {id: $to_id})
+        CREATE (a)-[r:RELATED_TO {relation_type: $rel_type, relation_label: $label}]->(b)
+        RETURN r.relation_type AS type, a.id AS from_id, b.id AS to_id, r.relation_label AS label
         """
+        import uuid
+        r_id = str(uuid.uuid4())
+        
         rec = session.run(
-            query,
+            """
+            MATCH (a:Person {id: $from_id}), (b:Person {id: $to_id})
+            MERGE (a)-[r:RELATED_TO]->(b)
+            SET r.id = COALESCE(r.id, $r_id),
+                r.relation_type = $rel_type,
+                r.relation_label = $label,
+                r.from_person_id = $from_id,
+                r.to_person_id = $to_id
+            RETURN r.relation_type AS type, a.id AS from_id, b.id AS to_id, r.relation_label AS label
+            """,
             from_id=from_id,
             to_id=to_id,
+            rel_type=rel_type,
             label=body.relation_label or row.get("relation_raw"),
+            r_id=r_id
         ).single()
 
         if not rec:

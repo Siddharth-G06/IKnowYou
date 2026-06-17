@@ -41,7 +41,7 @@ export default function PeopleListRow({
   onViewRelationships,
   onAddRelationship,
 }: PeopleListRowProps) {
-  const { name, tags, notes, avatarColor } = person;
+  const { name, tags = [], notes, avatarColor } = person;
   const initials = getInitials(name);
 
   return (
@@ -75,17 +75,18 @@ export default function PeopleListRow({
         <p className="font-semibold text-sm text-foreground truncate">{name}</p>
       </div>
 
-      {/* Tags */}
+      {/* Tags — backend sends plain strings */}
       <div className="hidden md:flex flex-1 gap-2 overflow-hidden">
         {tags.slice(0, 2).map((tag) => {
-          const colors = categoryColors[tag.category] ?? categoryColors.other;
+          const key = String(tag).toLowerCase();
+          const colors = categoryColors[key] ?? categoryColors.other;
           return (
             <span
-              key={tag.label}
+              key={tag}
               className="px-2 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap"
               style={{ backgroundColor: colors.bg, color: colors.text }}
             >
-              {tag.label}
+              {tag}
             </span>
           );
         })}

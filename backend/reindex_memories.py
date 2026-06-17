@@ -1,54 +1,47 @@
-"""
-Re-indexes all existing Neo4j Memory nodes into ChromaDB.
-Run this once after a ChromaDB reset:
-    .\\venv\\Scripts\\python reindex_memories.py
-"""
+"""Re-index all memories from Neo4j into ChromaDB using local SentenceTransformer embedder."""
+import sys
+import os
+
+sys.path.insert(0, ".")
 from dotenv import load_dotenv
 load_dotenv()
 
 from db.neo4j_client import run_query
-from services.vector_store import store_memory, get_memory_count
-
-print("ChromaDB count before:", get_memory_count())
+from services import vector_store
 
 rows = run_query(
     """
     MATCH (m:Memory)
-    RETURN m.id AS id,
-           m.raw_text AS raw_text,
-           m.event AS event,
-           m.date_mentioned AS date_mentioned,
+    RETURN m.id AS id, m.raw_text AS raw_text,
+           m.event AS event, m.date_mentioned AS date_mentioned,
            m.created_at AS created_at
-    ORDER BY m.created_at ASC
     """
 )
 
-print(f"Found {len(rows)} memories in Neo4j to re-index...")
-
-success = 0
-failed = 0
+print(f"Found {len(rows)} memories to re-index")
 for row in rows:
-    memory_id = row["id"]
-    raw_text = row.get("raw_text") or ""
-    if not raw_text.strip():
-        print(f"  Skipping {memory_id} — empty raw_text")
-        failed += 1
-        continue
-
+    mid = row["id"]
+    text = row["raw_text"]
     metadata = {
         "event": row.get("event") or "",
         "date_mentioned": row.get("date_mentioned") or "",
         "created_at": row.get("created_at") or "",
-        "person_ids": "",  # already sanitized as scalar
+        "person_ids": [],
     }
+    ok = vector_store.store_memory(mid, text, metadata)
+    status = "OK" if ok else "FAIL"
+    print(f"  [{status}] {mid}: {text[:70]}")
 
-    ok = store_memory(memory_id, raw_text, metadata)
-    if ok:
-        print(f"  ✓ Indexed: {raw_text[:60]}")
-        success += 1
-    else:
-        print(f"  ✗ Failed:  {raw_text[:60]}")
-        failed += 1
+print()
+print("ChromaDB count after re-index:", vector_store.get_memory_count())
+print()
+print("Testing search: 'coffee shop'")
+results = vector_store.search_memories("coffee shop", 5)
+for r in results:
+    print(f"  score={r.similarity_score:.3f}  text={r.raw_text[:70]}")
 
-print(f"\nDone. {success} indexed, {failed} failed.")
-print("ChromaDB count after:", get_memory_count())
+print()
+print("Testing search: 'Who did I meet last week'")
+results2 = vector_store.search_memories("Who did I meet last week", 5)
+for r in results2:
+    print(f"  score={r.similarity_score:.3f}  text={r.raw_text[:70]}")

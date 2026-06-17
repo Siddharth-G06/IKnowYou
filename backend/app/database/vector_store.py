@@ -4,25 +4,21 @@ from app.config import settings
 from pathlib import Path
 import json
 
-# SQLite-VSS setup
-# Requires sqlite-vss package: pip install sqlite-vss
-
 class VectorStore:
     def __init__(self):
         self.db_path = settings.SQLITE_PATH
         self.dim = settings.EMBEDDING_DIM
 
     def _get_conn(self):
-        import sqlite_vss
-        conn = sqlite3.connect(self.db_path)
-        sqlite_vss.load(conn)
-        return conn
+        return sqlite3.connect(self.db_path)
 
     def initialize(self):
         conn = self._get_conn()
-        conn.execute(f"""
-            CREATE VIRTUAL TABLE IF NOT EXISTS memory_vectors
-            USING vss0(embedding({self.dim}))
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS memory_vectors (
+                rowid INTEGER PRIMARY KEY,
+                embedding TEXT
+            )
         """)
         conn.commit()
         conn.close()
@@ -38,17 +34,29 @@ class VectorStore:
 
     def search(self, query_embedding: list[float], k: int = 5) -> list[int]:
         conn = self._get_conn()
-        cursor = conn.execute(
-            """
-            SELECT rowid, distance
-            FROM memory_vectors
-            WHERE vss_search(embedding, ?)
-            LIMIT ?
-            """,
-            (json.dumps(query_embedding), k)
-        )
+        cursor = conn.execute("SELECT rowid, embedding FROM memory_vectors")
         results = cursor.fetchall()
         conn.close()
-        return [row[0] for row in results]
+
+        if not results:
+            return []
+
+        # Python-based cosine similarity since sqlite-vss is unavailable
+        q_vec = np.array(query_embedding)
+        q_norm = np.linalg.norm(q_vec)
+        if q_norm == 0:
+            return []
+
+        distances = []
+        for rowid, emb_str in results:
+            emb = np.array(json.loads(emb_str))
+            emb_norm = np.linalg.norm(emb)
+            if emb_norm == 0:
+                continue
+            sim = np.dot(q_vec, emb) / (q_norm * emb_norm)
+            distances.append((rowid, -sim)) # Sort by max similarity (min negative sim)
+
+        distances.sort(key=lambda x: x[1])
+        return [rowid for rowid, _ in distances[:k]]
 
 vector_store = VectorStore()

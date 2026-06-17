@@ -5,13 +5,12 @@ from typing import Any, Dict, List, Optional
 
 import chromadb
 from chromadb.api.models.Collection import Collection
-from chromadb.utils.embedding_functions import OllamaEmbeddingFunction
 
 from models.memory import SearchResult
 
 _client: Optional[chromadb.PersistentClient] = None
 _collection: Optional[Collection] = None
-_embedder: Optional[OllamaEmbeddingFunction] = None
+_embedder = None  # SentenceTransformer instance
 
 
 def _get_client() -> chromadb.PersistentClient:
@@ -28,17 +27,30 @@ def _get_client() -> chromadb.PersistentClient:
     return _client
 
 
-def _get_embedder() -> OllamaEmbeddingFunction:
+def _get_embedder():
+    """
+    Returns a local SentenceTransformer embedder (all-MiniLM-L6-v2).
+    This works completely offline — no Ollama required.
+    """
     global _embedder
     if _embedder is not None:
         return _embedder
 
-    base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-    _embedder = OllamaEmbeddingFunction(
-        url=base_url,
-        model_name="nomic-embed-text",
-    )
+    try:
+        from sentence_transformers import SentenceTransformer
+        _embedder = SentenceTransformer("all-MiniLM-L6-v2")
+        print("VectorStore: using local SentenceTransformer (all-MiniLM-L6-v2)")
+    except Exception as e:
+        raise RuntimeError(f"Failed to load SentenceTransformer: {e}") from e
+
     return _embedder
+
+
+def _embed(texts: List[str]) -> List[List[float]]:
+    """Embed a list of texts and return list of float vectors."""
+    model = _get_embedder()
+    embeddings = model.encode(texts, convert_to_numpy=True)
+    return [emb.tolist() for emb in embeddings]
 
 
 def _get_collection() -> Collection:
@@ -48,9 +60,7 @@ def _get_collection() -> Collection:
 
     client = _get_client()
     # NOTE: Do NOT pass embedding_function here — we generate embeddings
-    # explicitly via _get_embedder() and pass them in every upsert/query call.
-    # Passing it here causes a ValueError when the persisted collection was
-    # created with a different (or default) embedding function name.
+    # explicitly via _embed() and pass them in every upsert/query call.
     _collection = client.get_or_create_collection(
         name="kinledger_memories",
     )
@@ -92,15 +102,12 @@ def _sanitize_metadata(metadata: dict) -> dict:
 
 def store_memory(memory_id: str, raw_text: str, metadata: dict) -> bool:
     """
-    Stores a memory in ChromaDB using an Ollama embedding (nomic-embed-text).
+    Stores a memory in ChromaDB using a local sentence-transformers embedding.
     metadata is expected to contain: {person_ids, event, date_mentioned, created_at}
     """
     try:
         collection = _get_collection()
-        embedder = _get_embedder()
-
-        # Explicitly generate embeddings
-        embedding = embedder([raw_text])[0]
+        embedding = _embed([raw_text])[0]
 
         collection.upsert(
             ids=[memory_id],
@@ -123,7 +130,6 @@ def search_memories(query: str, n_results: int = 5) -> List[SearchResult]:
     for attempt in range(2):
         try:
             collection = _get_collection()
-            embedder = _get_embedder()
 
             # Guard: querying an empty collection crashes ChromaDB's HNSW reader
             count = 0
@@ -134,7 +140,7 @@ def search_memories(query: str, n_results: int = 5) -> List[SearchResult]:
             if count == 0:
                 return []
 
-            query_embedding = embedder([query])[0]
+            query_embedding = _embed([query])[0]
 
             results = collection.query(
                 query_embeddings=[query_embedding],

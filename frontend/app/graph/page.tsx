@@ -3,40 +3,26 @@ import FamilyGraph from '@/components/FamilyGraph';
 
 export default function GraphPage() {
   return (
-    <div
-      style={{
-        padding: '40px 36px',
-        maxWidth: '960px',
-        margin: '0 auto',
-        fontFamily: 'var(--font-body)',
-        minHeight: '80vh',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-      className="fade-in"
-    >
-      <header style={{ marginBottom: '36px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-          <GitBranch size={22} color="var(--amber)" strokeWidth={1.75} />
-          <h1
-            style={{
-              fontFamily: 'var(--font-heading)',
-              fontSize: '28px',
-              fontWeight: 700,
-              color: 'var(--text-primary)',
-              letterSpacing: '-0.02em',
-            }}
-          >
+    <div className="max-w-6xl mx-auto space-y-6 pb-12 animate-in fade-in-up">
+      <header className="space-y-2">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center glow-amber">
+            <GitBranch size={22} className="text-indigo-400" strokeWidth={2} />
+          </div>
+          <h1 className="text-3xl font-bold tracking-tight text-white">
             Family Tree
           </h1>
         </div>
-        <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
-          Visualize your relationship network
+        <p className="text-muted-foreground text-sm font-medium">
+          Visualize your entire relationship network
         </p>
       </header>
 
       {/* Graph Area */}
-      <FamilyGraph />
+      <div className="glass-panel rounded-3xl p-1 overflow-hidden relative min-h-[70vh]">
+        <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent pointer-events-none" />
+        <FamilyGraph />
+      </div>
     </div>
   );
 }

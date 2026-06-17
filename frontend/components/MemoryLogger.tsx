@@ -1,187 +1,97 @@
-'use client';
+"use client";
+import { useState } from "react";
+import { api } from "../lib/api";
+import { Send, Loader2, CheckCircle2, AlertTriangle, Sparkles } from "lucide-react";
 
-import { FC, useCallback, useEffect, useRef, useState } from 'react';
-import { Feather, Loader2 } from 'lucide-react';
-import ExtractionPreview from '@/components/ExtractionPreview';
-import type { MemoryResponse } from '@/hooks/useMemories';
+export default function MemoryLogger() {
+  const [content, setContent] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [result, setResult] = useState<any>(null);
 
-interface MemoryLoggerProps {
-  onMemoryLogged: (raw_text: string) => Promise<MemoryResponse | null>;
-  isLogging: boolean;
-  extractionResult: MemoryResponse | null;
-  onClearExtraction: () => void;
-}
+  const handleSubmit = async () => {
+    if (!content.trim()) return;
+    setIsLoading(true);
+    setResult(null);
+    try {
+      const res = await api.logMemory(content);
+      setResult({ ok: true, data: res });
+      setContent("");
+    } catch (e: any) {
+      setResult({ ok: false, error: e?.message ?? "Backend unavailable." });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-const PLACEHOLDER_EXAMPLES = [
-  'Met Ramesh uncle at Rohit\'s wedding. He\'s dad\'s cousin. Works in Dubai logistics...',
-  'Priya mentioned she\'s in second year MBBS at Madras Medical College...',
-  'Ran into Karthik at the airport. He\'s Anand\'s brother-in-law. Moving to Canada next month.',
-  'Sunita aunty called — she\'s staying with Grandma for a month. Lives in Mysore...',
-];
-
-const MemoryLogger: FC<MemoryLoggerProps> = ({
-  onMemoryLogged,
-  isLogging,
-  extractionResult,
-  onClearExtraction,
-}) => {
-  const [text, setText] = useState('');
-  const [placeholderIdx, setPlaceholderIdx] = useState(0);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  // Cycle placeholder every 3.5s
-  useEffect(() => {
-    const id = setInterval(() => {
-      setPlaceholderIdx((prev) => (prev + 1) % PLACEHOLDER_EXAMPLES.length);
-    }, 3500);
-    return () => clearInterval(id);
-  }, []);
-
-  const handleSubmit = useCallback(async () => {
-    const trimmed = text.trim();
-    if (!trimmed || isLogging) return;
-    await onMemoryLogged(trimmed);
-    setText('');
-  }, [text, isLogging, onMemoryLogged]);
-
-  // Cmd/Ctrl + Enter keyboard shortcut
-  useEffect(() => {
-    const el = textareaRef.current;
-    if (!el) return;
-    const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-        e.preventDefault();
-        handleSubmit();
-      }
-    };
-    el.addEventListener('keydown', handler);
-    return () => el.removeEventListener('keydown', handler);
-  }, [handleSubmit]);
+  const charCount = content.length;
+  const isOverLimit = charCount > 2000;
 
   return (
-    <div
-      style={{
-        backgroundColor: 'var(--bg-elevated)',
-        border: '1px solid var(--border)',
-        borderRadius: '16px',
-        padding: '20px 22px',
-        marginBottom: '28px',
-      }}
-    >
-      {/* Heading */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          marginBottom: '14px',
-        }}
-      >
-        <Feather size={16} color="var(--amber)" strokeWidth={1.75} />
-        <h2
-          style={{
-            fontFamily: 'var(--font-heading)',
-            fontSize: '16px',
-            fontWeight: 600,
-            color: 'var(--text-primary)',
-            letterSpacing: '-0.01em',
-          }}
-        >
-          Log a Memory
-        </h2>
-      </div>
-
+    <div className="space-y-4">
       {/* Textarea */}
-      <textarea
-        ref={textareaRef}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder={PLACEHOLDER_EXAMPLES[placeholderIdx]}
-        rows={4}
-        style={{
-          width: '100%',
-          resize: 'vertical',
-          backgroundColor: 'var(--bg)',
-          border: '1px solid var(--border)',
-          borderRadius: '10px',
-          padding: '12px 14px',
-          fontSize: '14px',
-          fontFamily: 'var(--font-body)',
-          color: 'var(--text-primary)',
-          lineHeight: 1.6,
-          outline: 'none',
-          transition: 'border-color 0.2s',
-          boxSizing: 'border-box',
-        }}
-        onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--amber-dim)'; }}
-        onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; }}
-      />
-
-      {/* Character count + shortcut hint */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginTop: '6px',
-          marginBottom: '12px',
-        }}
-      >
-        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-          {text.length > 0 ? `${text.length} chars` : ''}
-        </span>
-        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-          ⌘↩ to save
-        </span>
+      <div className="relative">
+        <textarea
+          id="memory-input"
+          rows={4}
+          value={content}
+          onChange={e => setContent(e.target.value)}
+          placeholder={`"Had lunch with Amma today. She mentioned Karthik's wedding next month..."`}
+          className="w-full rounded-2xl px-5 py-4 text-sm text-white placeholder:text-gray-600 bg-white/5 border border-white/10 outline-none resize-none transition-all focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/10 leading-relaxed"
+        />
+        <div className={`absolute bottom-3 right-4 text-xs font-mono ${isOverLimit ? 'text-red-400' : 'text-gray-600'}`}>
+          {charCount}/2000
+        </div>
       </div>
 
-      {/* Submit button */}
-      <button
-        onClick={handleSubmit}
-        disabled={!text.trim() || isLogging}
-        style={{
-          width: '100%',
-          padding: '11px',
-          borderRadius: '10px',
-          border: 'none',
-          backgroundColor: isLogging || !text.trim() ? 'var(--amber-dim)' : 'var(--amber)',
-          color: '#0f0e0d',
-          fontSize: '14px',
-          fontWeight: 600,
-          fontFamily: 'var(--font-body)',
-          cursor: isLogging || !text.trim() ? 'not-allowed' : 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '8px',
-          transition: 'background-color 0.2s, opacity 0.2s',
-        }}
-      >
-        {isLogging ? (
-          <>
-            <Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} />
-            Extracting…
-          </>
-        ) : (
-          'Extract & Save Memory'
-        )}
-      </button>
+      {/* Hint */}
+      <div className="flex items-center gap-1.5 text-xs text-gray-600">
+        <Sparkles size={12} className="text-amber-500/50" />
+        <span>IKnowYou will automatically extract people and relationships from your memory.</span>
+      </div>
 
-      {/* Extraction preview */}
-      {extractionResult && (
-        <ExtractionPreview
-          extraction={extractionResult.extraction}
-          pendingConfirmations={extractionResult.pending_confirmations ?? []}
-          onConfirm={onClearExtraction}
-          onEdit={onClearExtraction}
-        />
+      {/* Submit row */}
+      <div className="flex justify-end">
+        <button
+          id="log-memory-btn"
+          onClick={handleSubmit}
+          disabled={!content.trim() || isLoading || isOverLimit}
+          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-sm font-bold shadow-lg shadow-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95"
+        >
+          {isLoading ? (
+            <><Loader2 size={15} className="animate-spin" /> Logging...</>
+          ) : (
+            <><Send size={15} /> Log Memory</>
+          )}
+        </button>
+      </div>
+
+      {/* Result banner */}
+      {result && (
+        <div className={`rounded-xl p-4 text-sm border flex items-start gap-3 animate-in fade-in-up duration-300 ${
+          result.ok
+            ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+            : 'bg-red-500/10 border-red-500/20 text-red-400'
+        }`}>
+          {result.ok
+            ? <CheckCircle2 size={18} className="mt-0.5 shrink-0" />
+            : <AlertTriangle size={18} className="mt-0.5 shrink-0" />}
+          <div>
+            {result.ok ? (
+              <>
+                <p className="font-semibold">Memory logged!</p>
+                <p className="text-xs mt-0.5 opacity-80">
+                  {result.data?.extraction?.persons?.length
+                    ? <>Found <strong>{result.data.extraction.persons.filter((p: {name?: string}) => p.name && p.name !== 'I').length}</strong> {result.data.extraction.persons.length === 1 ? 'person' : 'people'} · </>
+                    : null}
+                  ID: {String(result.data?.id ?? '').substring(0, 16)}…
+                </p>
+              </>
+            ) : (
+              <p>{result.error}</p>
+            )}
+          </div>
+        </div>
       )}
-
-      <style>{`
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-      `}</style>
     </div>
   );
-};
-
-export default MemoryLogger;
+}

@@ -19,24 +19,35 @@ Extract these fields:
 - date_mentioned: string or null (any date reference)
 - notes: any additional context not captured above
 
-If a field is not mentioned, use null.
-For persons array, include every person mentioned.
+CRITICAL RULES:
+1. ONLY extract ACTUAL HUMAN BEINGS in the 'persons' list.
+2. DO NOT extract organizations, schools, colleges (like KEC), cities, or places as persons. If mentioned, put them in the 'location' field of the relevant person instead.
+3. Pay close attention to WHO met WHO. If the text says "Siddharth met Divija", ensure both are extracted as separate persons.
+4. If the user refers to themselves ("I", "my", "me"), extract "I" as a person.
+5. If a field is not mentioned, use null.
 
-Example input: "Met Ramesh uncle at Rohit's wedding. He's dad's cousin. Works in Dubai logistics."
+Example input: "I met Siddharth who studies at KEC college in Erode"
 Example output:
 {
   "persons": [
     {
-      "name": "Ramesh",
-      "nickname": "uncle",
-      "relation_raw": "dad's cousin",
-      "occupation": "Dubai logistics",
-      "location": "Dubai"
+      "name": "I",
+      "nickname": null,
+      "relation_raw": null,
+      "occupation": null,
+      "location": null
+    },
+    {
+      "name": "Siddharth",
+      "nickname": null,
+      "relation_raw": null,
+      "occupation": "student",
+      "location": "KEC college, Erode"
     }
   ],
-  "event": "Rohit's wedding",
+  "event": null,
   "date_mentioned": null,
-  "notes": null
+  "notes": "Met Siddharth who studies at KEC college in Erode"
 }"""
 
 
